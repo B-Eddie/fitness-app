@@ -1,17 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { auth, db } from "../config/firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import React, { createContext, useState, useContext } from "react";
 
 interface UserProfile {
   email: string;
-  createdAt: Date;
   displayName?: string;
   height?: number;
   weight?: number;
@@ -19,7 +9,7 @@ interface UserProfile {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: { email: string } | null;
   userProfile: UserProfile | null;
   loading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
@@ -31,62 +21,39 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ email: string } | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUserProfile = async (uid: string) => {
-    const userDoc = await getDoc(doc(db, "users", uid));
-    if (userDoc.exists()) {
-      setUserProfile(userDoc.data() as UserProfile);
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        await fetchUserProfile(user.uid);
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+  const [loading] = useState(false);
 
   const signUp = async (email: string, password: string) => {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
+    // Mock signup - in a real app, this would validate and create a user
+    const newUser = { email };
+    setUser(newUser);
+    setUserProfile({
       email,
-      password
-    );
-    const user = userCredential.user;
-
-    // Create user profile in Firestore
-    const userProfile: UserProfile = {
-      email: user.email!,
       createdAt: new Date(),
-    };
-
-    await setDoc(doc(db, "users", user.uid), userProfile);
-    setUserProfile(userProfile);
+    });
   };
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    // Mock signin - in a real app, this would validate credentials
+    const mockUser = { email };
+    setUser(mockUser);
+    setUserProfile({
+      email,
+      displayName: "Demo User",
+      height: 175,
+      weight: 70,
+      fitnessGoals: ["Build Muscle", "Improve Endurance"],
+    });
   };
 
   const logout = async () => {
-    await signOut(auth);
+    setUser(null);
+    setUserProfile(null);
   };
 
   const updateUserProfile = async (data: Partial<UserProfile>) => {
-    if (!user) return;
-
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, data, { merge: true });
     setUserProfile((prev) => (prev ? { ...prev, ...data } : null));
   };
 
@@ -100,11 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUserProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
