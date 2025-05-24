@@ -15,6 +15,7 @@ import HealthTrackerScreen from "./src/screens/HealthTrackerScreen";
 import MuscleTrackerScreen from "./src/screens/MuscleTrackerScreen";
 import FeedScreen from "./src/screens/FeedScreen";
 import WorkoutSessionScreen from "./src/screens/WorkoutSessionScreen";
+import GachaScreen from "./src/screens/GachaScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,6 +37,8 @@ function MainTabs() {
             iconName = focused ? "body" : "body-outline";
           } else if (route.name === "Feed") {
             iconName = focused ? "newspaper" : "newspaper-outline";
+          } else if (route.name === "Gacha") {
+            iconName = focused ? "gift" : "gift-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -59,6 +62,7 @@ function MainTabs() {
       <Tab.Screen name="Health" component={HealthTrackerScreen} />
       <Tab.Screen name="Muscles" component={MuscleTrackerScreen} />
       <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Gacha" component={GachaScreen} />
     </Tab.Navigator>
   );
 }
