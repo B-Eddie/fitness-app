@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Text } from "react-native";
 
 // Import screens
 import HomeScreen from "./src/screens/HomeScreen";
@@ -15,53 +16,72 @@ import HealthTrackerScreen from "./src/screens/HealthTrackerScreen";
 import MuscleTrackerScreen from "./src/screens/MuscleTrackerScreen";
 import FeedScreen from "./src/screens/FeedScreen";
 import WorkoutSessionScreen from "./src/screens/WorkoutSessionScreen";
+import MapScreen from "./src/screens/MapScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function MainTabs() {
+const MainTabs = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === "Home") {
-            iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Workout") {
-            iconName = focused ? "fitness" : "fitness-outline";
-          } else if (route.name === "Health") {
-            iconName = focused ? "heart" : "heart-outline";
-          } else if (route.name === "Muscles") {
-            iconName = focused ? "body" : "body-outline";
-          } else if (route.name === "Feed") {
-            iconName = focused ? "newspaper" : "newspaper-outline";
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
+      screenOptions={{
         tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "gray",
+        tabBarInactiveTintColor: "#8E8E93",
         tabBarStyle: {
-          backgroundColor: "#fff",
+          borderTopWidth: 1,
+          borderTopColor: "#E5E5EA",
+          backgroundColor: "#FFFFFF",
         },
-        headerStyle: {
-          backgroundColor: "#007AFF",
-        },
-        headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-      })}
+      }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Workout" component={WorkoutScreen} />
-      <Tab.Screen name="Health" component={HealthTrackerScreen} />
-      <Tab.Screen name="Muscles" component={MuscleTrackerScreen} />
-      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen
+        name="Health"
+        component={HealthTrackerScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }}>❤️</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Muscles"
+        component={MuscleTrackerScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }}>💪</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }}>🗺️</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Feed"
+        component={FeedScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }}>📱</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Workout"
+        component={WorkoutSessionScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }}>🏋️‍♂️</Text>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
-}
+};
 
 export default function App() {
   return (
