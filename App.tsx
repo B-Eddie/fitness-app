@@ -13,9 +13,9 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import OnboardingScreen from "./src/screens/OnboardingScreen";
 import HealthTrackerScreen from "./src/screens/HealthTrackerScreen";
 import MuscleTrackerScreen from "./src/screens/MuscleTrackerScreen";
-import FeedScreen from "./src/screens/FeedScreen";
 import WorkoutSessionScreen from "./src/screens/WorkoutSessionScreen";
 import GachaScreen from "./src/screens/GachaScreen";
+import MotivationScreen from "./src/screens/TikTokMotivationScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -35,8 +35,8 @@ function MainTabs() {
             iconName = focused ? "heart" : "heart-outline";
           } else if (route.name === "Muscles") {
             iconName = focused ? "body" : "body-outline";
-          } else if (route.name === "Feed") {
-            iconName = focused ? "newspaper" : "newspaper-outline";
+          } else if (route.name === "Motivation") {
+            iconName = focused ? "flame" : "flame-outline";
           } else if (route.name === "Gacha") {
             iconName = focused ? "gift" : "gift-outline";
           }
@@ -61,7 +61,7 @@ function MainTabs() {
       <Tab.Screen name="Workout" component={WorkoutScreen} />
       <Tab.Screen name="Health" component={HealthTrackerScreen} />
       <Tab.Screen name="Muscles" component={MuscleTrackerScreen} />
-      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Motivation" component={MotivationScreen} />
       <Tab.Screen name="Gacha" component={GachaScreen} />
     </Tab.Navigator>
   );
