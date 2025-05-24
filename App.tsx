@@ -3,30 +3,35 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 
-// Import screens (we'll create these next)
+// Import screens
 import HomeScreen from "./src/screens/HomeScreen";
 import WorkoutScreen from "./src/screens/WorkoutScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import SignUpScreen from "./src/screens/SignUpScreen";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+function Navigation() {
+  const { user } = useAuth();
+
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: "#000",
-            },
-            headerTintColor: "#fff",
-            headerTitleStyle: {
-              fontWeight: "bold",
-            },
-          }}
-        >
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#000",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+    >
+      {user ? (
+        // Authenticated stack
+        <>
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -42,9 +47,35 @@ export default function App() {
             component={ProfileScreen}
             options={{ title: "Profile" }}
           />
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
+        </>
+      ) : (
+        // Auth stack
+        <>
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
+            options={{ headerShown: false }}
+          />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <Navigation />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

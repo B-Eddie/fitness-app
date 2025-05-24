@@ -1,125 +1,129 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
+  TextInput,
+  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Image,
+  Alert,
 } from "react-native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAuth } from "../contexts/AuthContext";
 
-type ProfileScreenProps = {
-  navigation: NativeStackNavigationProp<any>;
-};
+export default function ProfileScreen() {
+  const { user, userProfile, updateUserProfile, logout } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [displayName, setDisplayName] = useState(
+    userProfile?.displayName || ""
+  );
+  const [height, setHeight] = useState(userProfile?.height?.toString() || "");
+  const [weight, setWeight] = useState(userProfile?.weight?.toString() || "");
+  const [fitnessGoals, setFitnessGoals] = useState(
+    userProfile?.fitnessGoals?.join(", ") || ""
+  );
 
-const ProfileScreen: React.FC<ProfileScreenProps> = () => {
-  const dummyUser = {
-    name: "John Doe",
-    streak: 5,
-    workoutsCompleted: 23,
-    fitnessGoal: "Build Muscle",
-    nextWorkout: "Tomorrow at 9:00 AM",
+  const handleSave = async () => {
+    try {
+      await updateUserProfile({
+        displayName,
+        height: height ? parseFloat(height) : undefined,
+        weight: weight ? parseFloat(weight) : undefined,
+        fitnessGoals: fitnessGoals
+          .split(",")
+          .map((goal) => goal.trim())
+          .filter(Boolean),
+      });
+      setIsEditing(false);
+      Alert.alert("Success", "Profile updated successfully");
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    }
   };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.profileImageContainer}>
-          {/* Placeholder for profile image */}
-          <View style={styles.profileImage} />
-        </View>
-        <Text style={styles.name}>{dummyUser.name}</Text>
-        <Text style={styles.streak}>{dummyUser.streak} Day Streak! 🔥</Text>
-      </View>
-
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{dummyUser.workoutsCompleted}</Text>
-          <Text style={styles.statLabel}>Workouts</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{dummyUser.fitnessGoal}</Text>
-          <Text style={styles.statLabel}>Goal</Text>
-        </View>
-      </View>
-
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Next Workout</Text>
-        <View style={styles.card}>
-          <Text style={styles.cardText}>{dummyUser.nextWorkout}</Text>
-        </View>
+        <Text style={styles.sectionTitle}>Profile Information</Text>
+        <Text style={styles.email}>Email: {user?.email}</Text>
+
+        {isEditing ? (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Display Name"
+              value={displayName}
+              onChangeText={setDisplayName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Height (cm)"
+              value={height}
+              onChangeText={setHeight}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Weight (kg)"
+              value={weight}
+              onChangeText={setWeight}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Fitness Goals (comma-separated)"
+              value={fitnessGoals}
+              onChangeText={setFitnessGoals}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSave}>
+              <Text style={styles.buttonText}>Save Changes</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.info}>
+              Display Name: {userProfile?.displayName || "Not set"}
+            </Text>
+            <Text style={styles.info}>
+              Height:{" "}
+              {userProfile?.height ? `${userProfile.height} cm` : "Not set"}
+            </Text>
+            <Text style={styles.info}>
+              Weight:{" "}
+              {userProfile?.weight ? `${userProfile.weight} kg` : "Not set"}
+            </Text>
+            <Text style={styles.info}>
+              Fitness Goals:{" "}
+              {userProfile?.fitnessGoals?.join(", ") || "Not set"}
+            </Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setIsEditing(true)}
+            >
+              <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Settings</Text>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Notifications</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Privacy</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Help & Support</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#000",
-  },
-  profileImageContainer: {
-    marginBottom: 15,
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#333",
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 5,
-  },
-  streak: {
-    fontSize: 16,
-    color: "#fff",
-    opacity: 0.8,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    padding: 20,
-    justifyContent: "space-around",
-  },
-  statCard: {
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
-    width: "45%",
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: "#666",
   },
   section: {
     padding: 20,
@@ -129,23 +133,46 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
   },
-  card: {
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
+  email: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 20,
   },
-  cardText: {
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
     fontSize: 16,
   },
-  settingItem: {
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
+  info: {
+    fontSize: 16,
     marginBottom: 10,
+    color: "#333",
   },
-  settingText: {
+  button: {
+    backgroundColor: "#007AFF",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "#FF3B30",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 20,
+  },
+  logoutButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
-
-export default ProfileScreen;
